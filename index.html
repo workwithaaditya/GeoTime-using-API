@@ -4,208 +4,755 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My weather app</title>
+  <title>SkyWatch - Advanced Weather Forecast & Analytics</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background particles */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.15;
+      animation: float 20s infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      25% { transform: translateY(-100px) translateX(50px); }
+      50% { transform: translateY(-50px) translateX(-50px); }
+      75% { transform: translateY(-150px) translateX(100px); }
+    }
+
+    /* Glassmorphism navbar */
+    .navbar {
+      background: rgba(255, 255, 255, 0.1) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .navbar:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .navbar-brand {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(45deg, #fff, #ffd700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-brand:hover {
+      transform: scale(1.05);
+      filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      padding: 0.5rem 1rem !important;
+    }
+
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffd700, #fff);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::before {
+      width: 80%;
+    }
+
+    .nav-link:hover {
+      color: #ffd700 !important;
+      transform: translateY(-2px);
+    }
+
+    .form-control {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      border-radius: 50px;
+      padding: 0.6rem 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: #ffd700;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+      color: #fff;
+    }
+
+    .btn-search {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      font-weight: 600;
+      padding: 0.6rem 1.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-search:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+      background: linear-gradient(135deg, #764ba2, #667eea);
+    }
+
+    /* Page title */
+    h1 {
+      color: #fff;
+      font-weight: 800;
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      animation: fadeInDown 1s ease;
+      position: relative;
+      display: inline-block;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
+      border-radius: 2px;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Weather cards with glassmorphism */
+    .weather-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .weather-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .weather-card:hover::before {
+      opacity: 1;
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .weather-card:hover {
+      transform: translateY(-15px) scale(1.02);
+      box-shadow: 0 15px 50px rgba(31, 38, 135, 0.5);
+      border-color: rgba(255, 215, 0, 0.5);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 25px 25px 0 0 !important;
+      padding: 1.5rem !important;
+    }
+
+    .card-header h4 {
+      margin: 0;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-body {
+      color: #fff;
+      padding: 2rem;
+    }
+
+    .card-title {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, #ffd700, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1.5rem;
+    }
+
+    .list-unstyled li {
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .list-unstyled li:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .list-unstyled li span {
+      color: #ffd700;
+      font-weight: 600;
+    }
+
+    .btn-card {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      font-weight: 600;
+      padding: 0.8rem 1.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-card::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-card:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    /* Table styling */
+    h2 {
+      color: #fff;
+      font-weight: 700;
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      animation: fadeInUp 1s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .table-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      overflow: hidden;
+    }
+
+    .table {
+      color: #fff;
+      margin: 0;
+    }
+
+    .table thead th {
+      border: none;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+      color: #fff;
+      font-weight: 700;
+      padding: 1rem;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+
+    .table tbody tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .table tbody td, .table tbody th {
+      border: none;
+      padding: 1.2rem 1rem;
+      vertical-align: middle;
+      font-weight: 500;
+    }
+
+    .table tbody th {
+      color: #ffd700;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    /* Loading animation */
+    .loading {
+      display: none;
+      text-align: center;
+      color: #fff;
+      font-size: 1.2rem;
+      margin: 2rem 0;
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #ffd700;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .weather-card {
+        margin-bottom: 2rem;
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .table {
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Animation delays for staggered effect */
+    .col:nth-child(1) .weather-card {
+      animation: slideInLeft 0.8s ease;
+    }
+
+    .col:nth-child(2) .weather-card {
+      animation: slideInUp 0.8s ease 0.2s both;
+    }
+
+    .col:nth-child(3) .weather-card {
+      animation: slideInRight 0.8s ease 0.4s both;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Dropdown menu styling */
+    .dropdown-menu {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      padding: 0.5rem;
+    }
+
+    .dropdown-item {
+      color: #fff;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(255, 215, 0, 0.3);
+      transform: translateX(5px);
+    }
+  </style>
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <!-- Animated background particles -->
+  <div class="particle" style="width: 100px; height: 100px; top: 10%; left: 10%; background: rgba(255, 215, 0, 0.3);"></div>
+  <div class="particle" style="width: 150px; height: 150px; top: 60%; left: 80%; background: rgba(255, 255, 255, 0.2); animation-delay: -5s;"></div>
+  <div class="particle" style="width: 80px; height: 80px; top: 40%; left: 20%; background: rgba(102, 126, 234, 0.3); animation-delay: -10s;"></div>
+  <div class="particle" style="width: 120px; height: 120px; top: 80%; left: 50%; background: rgba(118, 75, 162, 0.3); animation-delay: -15s;"></div>
+
+  <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
-      <a class="navbar-brand fw-bold text-primary d-flex align-items-center" href="#">
-        🌍 <span class="ms-">Geo<span class="text-warning">Time</span></span>
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <i class="fas fa-cloud-sun me-2"></i>
+        <span>Sky<span style="color: #ffd700;">Watch</span></span>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" style="border-color: rgba(255, 255, 255, 0.3);">
+        <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
+            <a class="nav-link active" aria-current="page" href="#current"><i class="fas fa-home me-1"></i> Current</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">About this app</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Delhi</a></li>
-                <li><a class="dropdown-item" href="#">Seattle</a></li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="#">Bangalore</a></li>
-              </ul>
-            </a>
+            <a class="nav-link" href="#forecast"><i class="fas fa-calendar-week me-1"></i> Forecast</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link disabled" aria-disabled="true">Usage Guide</a>
+            <a class="nav-link" href="#astronomy"><i class="fas fa-moon me-1"></i> Astronomy</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#air-quality"><i class="fas fa-wind me-1"></i> Air Quality</a>
           </li>
         </ul>
         <!-- Navbar Search Form -->
         <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-          <button class="btn btn-outline-success" type="submit">Search</button>
+          <input class="form-control me-2" type="search" placeholder="Search any city..." aria-label="Search" id="searchInput" />
+          <button class="btn btn-search" type="submit"><i class="fas fa-search me-1"></i> Search</button>
         </form>
       </div>
     </div>
   </nav>
 
-  <h1 class="my-4 text-center">Weather Related Info</h1>
+  <h1 class="my-5 text-center"><i class="fas fa-cloud-sun me-3"></i>Advanced Weather Dashboard</h1>
+
+  <!-- Loading indicator -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Fetching weather data...</p>
+  </div>
 
   <div class="container">
     <main>
-      <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-header py-3">
-              <h4 class="my-0 fw-normal">🌍 Location Details</h4>
-            </div>
-            <div class="card-body">
-              <h1 class="card-title pricing-card-title"><span id="name2"></span></h1>
-              <ul class="list-unstyled mt-3 mb-4">
-                <li> NAME : <span id="name"></span></li>
-                <li>REGION : <span id="region"></span></li>
-                <li>COUNTRY : <span id="country"></span></li>
-              </ul> 
-              <button type="button" class="w-100 btn btn-lg btn-outline-primary">More about Location</button>
+      <!-- Current Weather Section -->
+      <section id="current" class="mb-5">
+        <div class="row row-cols-1 row-cols-md-4 mb-4 text-center">
+          <!-- Main Weather Card -->
+          <div class="col-md-12 mb-4">
+            <div class="card weather-card" style="min-height: 200px;">
+              <div class="card-body text-center">
+                <h2 class="card-title mb-3">
+                  <i class="fas fa-map-marker-alt me-2"></i>
+                  <span id="cityName">Search a city</span>
+                </h2>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                      <img id="weatherIcon" src="" alt="Weather" style="width: 100px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));">
+                      <div class="ms-3">
+                        <h1 style="font-size: 4rem; margin: 0; color: #ffd700;" id="temperature">--</h1>
+                        <p style="font-size: 1.5rem; margin: 0; color: #fff;" id="condition">--</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="row text-start">
+                      <div class="col-6 mb-2">
+                        <small style="color: rgba(255,255,255,0.7);"><i class="fas fa-thermometer-half me-2"></i>Feels Like</small>
+                        <p style="color: #fff; font-weight: 600; margin: 0;" id="feelsLike">--</p>
+                      </div>
+                      <div class="col-6 mb-2">
+                        <small style="color: rgba(255,255,255,0.7);"><i class="fas fa-wind me-2"></i>Wind</small>
+                        <p style="color: #fff; font-weight: 600; margin: 0;" id="windSpeed">--</p>
+                      </div>
+                      <div class="col-6 mb-2">
+                        <small style="color: rgba(255,255,255,0.7);"><i class="fas fa-tint me-2"></i>Humidity</small>
+                        <p style="color: #fff; font-weight: 600; margin: 0;" id="humidity">--</p>
+                      </div>
+                      <div class="col-6 mb-2">
+                        <small style="color: rgba(255,255,255,0.7);"><i class="fas fa-eye me-2"></i>Visibility</small>
+                        <p style="color: #fff; font-weight: 600; margin: 0;" id="visibility">--</p>
+                      </div>
+                      <div class="col-6 mb-2">
+                        <small style="color: rgba(255,255,255,0.7);"><i class="fas fa-gauge me-2"></i>Pressure</small>
+                        <p style="color: #fff; font-weight: 600; margin: 0;" id="pressure">--</p>
+                      </div>
+                      <div class="col-6 mb-2">
+                        <small style="color: rgba(255,255,255,0.7);"><i class="fas fa-sun me-2"></i>UV Index</small>
+                        <p style="color: #fff; font-weight: 600; margin: 0;" id="uvIndex">--</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row mt-3">
+                  <div class="col-md-12">
+                    <small style="color: rgba(255,255,255,0.7);">
+                      <i class="fas fa-clock me-2"></i>Last Updated: <span id="lastUpdated">--</span> | 
+                      <i class="fas fa-globe me-2"></i><span id="region">--</span>, <span id="country">--</span>
+                    </small>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-header py-3">
-              <h4 class="my-0 fw-normal">📍 Coordinates</h4>
+      </section>
+
+      <!-- Weather Alerts Section -->
+      <section id="alerts" class="mb-5" style="display: none;">
+        <h2 class="text-center mb-4" style="color: #fff;">
+          <i class="fas fa-exclamation-triangle me-2"></i>Weather Alerts
+        </h2>
+        <div id="alertsContainer"></div>
+      </section>
+
+      <!-- 3-Day Forecast Section -->
+      <section id="forecast" class="mb-5">
+        <h2 class="text-center mb-4" style="color: #fff;">
+          <i class="fas fa-calendar-week me-2"></i>3-Day Forecast
+        </h2>
+        <div class="row row-cols-1 row-cols-md-3" id="forecastContainer">
+          <!-- Forecast cards will be dynamically added here -->
+        </div>
+      </section>
+
+      <!-- Hourly Forecast Section -->
+      <section id="hourly" class="mb-5">
+        <h2 class="text-center mb-4" style="color: #fff;">
+          <i class="fas fa-clock me-2"></i>Hourly Forecast
+        </h2>
+        <div class="table-container">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th><i class="fas fa-clock me-2"></i>Time</th>
+                  <th><i class="fas fa-cloud me-2"></i>Condition</th>
+                  <th><i class="fas fa-temperature-high me-2"></i>Temp</th>
+                  <th><i class="fas fa-water me-2"></i>Rain %</th>
+                  <th><i class="fas fa-wind me-2"></i>Wind</th>
+                  <th><i class="fas fa-tint me-2"></i>Humidity</th>
+                </tr>
+              </thead>
+              <tbody id="hourlyForecast">
+                <!-- Hourly data will be added here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Astronomy Section -->
+      <section id="astronomy" class="mb-5">
+        <h2 class="text-center mb-4" style="color: #fff;">
+          <i class="fas fa-moon me-2"></i>Astronomy & Sun/Moon Data
+        </h2>
+        <div class="row row-cols-1 row-cols-md-2">
+          <div class="col mb-4">
+            <div class="card weather-card">
+              <div class="card-header">
+                <h4><i class="fas fa-sun"></i> Sun Information</h4>
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled">
+                  <li><i class="fas fa-sunrise me-2"></i> Sunrise: <span id="sunrise">--</span></li>
+                  <li><i class="fas fa-sunset me-2"></i> Sunset: <span id="sunset">--</span></li>
+                  <li><i class="fas fa-sun me-2"></i> Sun Status: <span id="sunStatus">--</span></li>
+                </ul>
+              </div>
             </div>
-            <div class="card-body">
-              <h1 class="card-title pricing-card-title">Position </h1>
-              <ul class="list-unstyled mt-3 mb-4">
-                <li> LATITUDE : <span id="latitude"></span></li>
-                <li> LONGITUDE : <span id="longitude"></span></li>
-              </ul> 
-              <button type="button" class="w-100 btn btn-lg btn-outline-primary">Show on Map</button>
+          </div>
+          <div class="col mb-4">
+            <div class="card weather-card">
+              <div class="card-header">
+                <h4><i class="fas fa-moon"></i> Moon Information</h4>
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled">
+                  <li><i class="fas fa-arrow-up me-2"></i> Moonrise: <span id="moonrise">--</span></li>
+                  <li><i class="fas fa-arrow-down me-2"></i> Moonset: <span id="moonset">--</span></li>
+                  <li><i class="fas fa-moon me-2"></i> Phase: <span id="moonPhase">--</span></li>
+                  <li><i class="fas fa-certificate me-2"></i> Illumination: <span id="moonIllumination">--</span></li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-header py-3">
-              <h4 class="my-0 fw-normal">🕒 Time Information </h4>
+      </section>
+
+      <!-- Air Quality Section -->
+      <section id="air-quality" class="mb-5">
+        <h2 class="text-center mb-4" style="color: #fff;">
+          <i class="fas fa-wind me-2"></i>Air Quality Index
+        </h2>
+        <div class="card weather-card">
+          <div class="card-body">
+            <div class="row text-center">
+              <div class="col-md-12 mb-4">
+                <h3 style="color: #ffd700;">AQI Level: <span id="aqiLevel">--</span></h3>
+                <p style="color: rgba(255,255,255,0.8);" id="aqiDescription">Air quality data will appear here</p>
+              </div>
             </div>
-            <div class="card-body">
-              <h1 class="card-title pricing-card-title">Time Reference
-              </h1>
-              <ul class="list-unstyled mt-3 mb-4">
-                <li> TIME_ZONE : <span id="tz_id"></span></li>
-                <li> EPOCH ID : <span id="localtime_epoch"></span></li>
-                <li>LOCALTIME : <span id="localtime"></span></li>
-              </ul> 
-              <button type="button" class="w-100 btn btn-lg btn-outline-primary">More about Time</button>
+            <div class="row">
+              <div class="col-md-2 col-6 mb-3">
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 15px;">
+                  <small style="color: rgba(255,255,255,0.7);">CO</small>
+                  <p style="color: #fff; font-weight: 600; margin: 0;" id="co">--</p>
+                  <small style="color: rgba(255,255,255,0.5);">μg/m³</small>
+                </div>
+              </div>
+              <div class="col-md-2 col-6 mb-3">
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 15px;">
+                  <small style="color: rgba(255,255,255,0.7);">O₃</small>
+                  <p style="color: #fff; font-weight: 600; margin: 0;" id="o3">--</p>
+                  <small style="color: rgba(255,255,255,0.5);">μg/m³</small>
+                </div>
+              </div>
+              <div class="col-md-2 col-6 mb-3">
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 15px;">
+                  <small style="color: rgba(255,255,255,0.7);">NO₂</small>
+                  <p style="color: #fff; font-weight: 600; margin: 0;" id="no2">--</p>
+                  <small style="color: rgba(255,255,255,0.5);">μg/m³</small>
+                </div>
+              </div>
+              <div class="col-md-2 col-6 mb-3">
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 15px;">
+                  <small style="color: rgba(255,255,255,0.7);">SO₂</small>
+                  <p style="color: #fff; font-weight: 600; margin: 0;" id="so2">--</p>
+                  <small style="color: rgba(255,255,255,0.5);">μg/m³</small>
+                </div>
+              </div>
+              <div class="col-md-2 col-6 mb-3">
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 15px;">
+                  <small style="color: rgba(255,255,255,0.7);">PM2.5</small>
+                  <p style="color: #fff; font-weight: 600; margin: 0;" id="pm25">--</p>
+                  <small style="color: rgba(255,255,255,0.5);">μg/m³</small>
+                </div>
+              </div>
+              <div class="col-md-2 col-6 mb-3">
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 15px;">
+                  <small style="color: rgba(255,255,255,0.7);">PM10</small>
+                  <p style="color: #fff; font-weight: 600; margin: 0;" id="pm10">--</p>
+                  <small style="color: rgba(255,255,255,0.5);">μg/m³</small>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <h2 class="display-6 text-center mb-4">Weather of top cities</h2>
-      <div class="table-responsive">
-        <table class="table text-center">
-          <thead>
-            <!-- <tr> -->
-            <th style="width: 22%;"> </th>
-            <th style="width: 22%;">TEMPERATURE </th>
-            <th style="width: 22%;">FEELS </th>
-            <th style="width: 22%;">WIND SPEED </th>
-            <th style="width: 22%;">HUMIDITY </th>
-            <th style="width: 22%;">VISIBILITY </th>
-            <th style="width: 22%;">PRECIPITATION </th>
-            <th style="width: 22%;">CLOUD COVER </th>
-            <th style="width: 22%;">UV INDEX </th>
-
-            <!-- </tr> -->
-          </thead>
-          <tbody>
-            <tr>
-
-              <th scope="row" class="text-start">Delhi</th>
-
-              <td> 1 </td>
-              <td> 2 </td>
-              <td> 3 </td>
-              <td> 4 </td>
-              <td> 5 </td>
-              <td> 6 </td>
-              <td> 7 </td>
-              <td> 8 </td>
-
-            </tr>
-            <tr>
-              <th scope="row" class="text-start">Mumbai</th>
-              <td> 1 </td>
-              <td> 2 </td>
-              <td> 3 </td>
-              <td> 4 </td>
-              <td> 5 </td>
-              <td> 6 </td>
-              <td> 7 </td>
-              <td> 8 </td>
-
-            </tr>
-          </tbody>
-          <tbody>
-            <tr>
-              <th scope="row" class="text-start">Banglore</th>
-              <td> 1 </td>
-              <td> 2 </td>
-              <td> 3 </td>
-              <td> 4 </td>
-              <td> 5 </td>
-              <td> 6 </td>
-              <td> 7 </td>
-              <td> 8 </td>
-            </tr>
-            <tr>
-              <th scope="row" class="text-start">Badlapur</th>
-              <td> 1 </td>
-              <td> 2 </td>
-              <td> 3 </td>
-              <td> 4 </td>
-              <td> 5 </td>
-              <td> 6 </td>
-              <td> 7 </td>
-              <td> 8 </td>
-            </tr>
-            <tr>
-              <th scope="row" class="text-start">Faridabad</th>
-              <td> 1 </td>
-              <td> 2 </td>
-              <td> 3 </td>
-              <td> 4 </td>
-              <td> 5 </td>
-              <td> 6 </td>
-              <td> 7 </td>
-              <td> 8 </td>
-            </tr>
-            <tr>
-              <th scope="row" class="text-start">Yelahanka</th>
-              <td> 1 </td>
-              <td> 2 </td>
-              <td> 3 </td>
-              <td> 4 </td>
-              <td> 5 </td>
-              <td> 6 </td>
-              <td> 7 </td>
-              <td> 8 </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
-  <script type="module" src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 
 </html>

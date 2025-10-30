@@ -1,55 +1,302 @@
 // Target the navbar search form and input
 const searchForm = document.querySelector('form[role="search"]');
 const searchInput = searchForm.querySelector('input[type="search"]');
+const loadingElement = document.getElementById('loading');
 
-// Function to fetch weather alerts from RapidAPI
-async function getWeather(city) {
-  const url = `https://weatherapi-com.p.rapidapi.com/alerts.json?q=${city}`;
+// API Configuration
+const API_KEY = '8bee34e197msh6f107bb89434ed3p109bb6jsn654f791faa2f';
+const API_HOST = 'weatherapi-com.p.rapidapi.com';
+
+// Function to show/hide loading indicator
+function showLoading(show) {
+  if (show) {
+    loadingElement.classList.add('active');
+  } else {
+    loadingElement.classList.remove('active');
+  }
+}
+
+// Function to get AQI level description
+function getAQIDescription(index) {
+  const descriptions = {
+    1: { level: 'Good', desc: 'Air quality is satisfactory and poses little or no risk', color: '#00e400' },
+    2: { level: 'Moderate', desc: 'Air quality is acceptable for most people', color: '#ffff00' },
+    3: { level: 'Unhealthy for Sensitive Groups', desc: 'Sensitive groups may experience health effects', color: '#ff7e00' },
+    4: { level: 'Unhealthy', desc: 'Everyone may begin to experience health effects', color: '#ff0000' },
+    5: { level: 'Very Unhealthy', desc: 'Health alert: everyone may experience serious health effects', color: '#8f3f97' },
+    6: { level: 'Hazardous', desc: 'Health warnings of emergency conditions', color: '#7e0023' }
+  };
+  return descriptions[index] || { level: 'Unknown', desc: 'No data available', color: '#999' };
+}
+
+// Function to fetch comprehensive weather data
+async function getWeatherData(city) {
+  const url = `https://weatherapi-com.p.rapidapi.com/forecast.json?q=${encodeURIComponent(city)}&days=3&aqi=yes&alerts=yes`;
   const options = {
     method: 'GET',
     headers: {
-      'x-rapidapi-key': '8bee34e197msh6f107bb89434ed3p109bb6jsn654f791faa2f', // use your key
-      'x-rapidapi-host': 'weatherapi-com.p.rapidapi.com'
+      'x-rapidapi-key': API_KEY,
+      'x-rapidapi-host': API_HOST
     }
   };
 
   try {
+    showLoading(true);
     const response = await fetch(url, options);
 
-    // Check if response is ok
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const result = await response.json();
-    console.log(result);
+    const data = await response.json();
+    console.log('Weather Data:', data);
 
-    // Only update DOM if location exists
-    if (result.location) {
-      document.querySelector("#name2").textContent = result.location.name;
-      document.querySelector("#name").textContent = result.location.name;
-      document.querySelector("#region").textContent = result.location.region;
-      document.querySelector("#country").textContent = result.location.country;
-      document.querySelector("#latitude").textContent = result.location.lat;
-      document.querySelector("#longitude").textContent = result.location.lon;
-      document.querySelector("#tz_id").textContent = result.location.tz_id;
-      document.querySelector("#localtime_epoch").textContent = result.location.localtime_epoch;
-      document.querySelector("#localtime").textContent = result.location.localtime;
-    } 
+    // Update all sections
+    updateCurrentWeather(data);
+    updateForecast(data);
+    updateHourlyForecast(data);
+    updateAstronomy(data);
+    updateAirQuality(data);
+    updateAlerts(data);
 
+    showLoading(false);
   } catch (error) {
-    console.error(error);
-    document.querySelector("#name2").textContent = "⚠️ Error fetching data.";
+    console.error('Error fetching weather:', error);
+    alert(`Failed to fetch weather data: ${error.message}\nPlease check your internet connection and try again.`);
+    document.querySelector("#cityName").textContent = "⚠️ Error loading data";
+    showLoading(false);
+  }
+}
+
+// Update current weather display
+function updateCurrentWeather(data) {
+  if (!data || !data.location || !data.current) {
+    console.error('Invalid weather data');
+    return;
+  }
+  
+  const { location, current } = data;
+  
+  document.getElementById('cityName').textContent = location.name || 'Unknown';
+  document.getElementById('region').textContent = location.region || '--';
+  document.getElementById('country').textContent = location.country || '--';
+  document.getElementById('temperature').textContent = `${Math.round(current.temp_c)}°C`;
+  document.getElementById('condition').textContent = current.condition.text || '--';
+  
+  const weatherIcon = document.getElementById('weatherIcon');
+  weatherIcon.src = current.condition.icon.startsWith('//') ? `https:${current.condition.icon}` : current.condition.icon;
+  weatherIcon.alt = current.condition.text;
+  weatherIcon.style.display = 'block';
+  
+  document.getElementById('feelsLike').textContent = `${Math.round(current.feelslike_c)}°C`;
+  document.getElementById('windSpeed').textContent = `${current.wind_kph} km/h ${current.wind_dir}`;
+  document.getElementById('humidity').textContent = `${current.humidity}%`;
+  document.getElementById('visibility').textContent = `${current.vis_km} km`;
+  document.getElementById('pressure').textContent = `${current.pressure_mb} mb`;
+  document.getElementById('uvIndex').textContent = current.uv;
+  document.getElementById('lastUpdated').textContent = current.last_updated;
+}
+
+// Update 3-day forecast
+function updateForecast(data) {
+  if (!data || !data.forecast || !data.forecast.forecastday) {
+    console.error('Invalid forecast data');
+    return;
+  }
+  
+  const forecastContainer = document.getElementById('forecastContainer');
+  forecastContainer.innerHTML = '';
+
+  data.forecast.forecastday.forEach((day, index) => {
+    const date = new Date(day.date);
+    const dayName = index === 0 ? 'Today' : index === 1 ? 'Tomorrow' : date.toLocaleDateString('en-US', { weekday: 'long' });
+    
+    const iconUrl = day.day.condition.icon.startsWith('//') ? `https:${day.day.condition.icon}` : day.day.condition.icon;
+    
+    const card = `
+      <div class="col mb-4">
+        <div class="card weather-card">
+          <div class="card-header">
+            <h4><i class="fas fa-calendar-day me-2"></i>${dayName}</h4>
+          </div>
+          <div class="card-body text-center">
+            <p style="color: rgba(255,255,255,0.7); margin: 0;">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+            <img src="${iconUrl}" alt="${day.day.condition.text}" style="width: 80px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));">
+            <h3 style="color: #ffd700; margin: 10px 0;">${Math.round(day.day.maxtemp_c)}° / ${Math.round(day.day.mintemp_c)}°</h3>
+            <p style="color: #fff; font-weight: 500;">${day.day.condition.text}</p>
+            <div class="row text-start mt-3">
+              <div class="col-6 mb-2">
+                <small style="color: rgba(255,255,255,0.7);"><i class="fas fa-cloud-rain me-1"></i>Rain</small>
+                <p style="color: #fff; margin: 0; font-size: 0.9rem;">${day.day.daily_chance_of_rain}%</p>
+              </div>
+              <div class="col-6 mb-2">
+                <small style="color: rgba(255,255,255,0.7);"><i class="fas fa-wind me-1"></i>Wind</small>
+                <p style="color: #fff; margin: 0; font-size: 0.9rem;">${Math.round(day.day.maxwind_kph)} km/h</p>
+              </div>
+              <div class="col-6 mb-2">
+                <small style="color: rgba(255,255,255,0.7);"><i class="fas fa-tint me-1"></i>Humidity</small>
+                <p style="color: #fff; margin: 0; font-size: 0.9rem;">${day.day.avghumidity}%</p>
+              </div>
+              <div class="col-6 mb-2">
+                <small style="color: rgba(255,255,255,0.7);"><i class="fas fa-sun me-1"></i>UV</small>
+                <p style="color: #fff; margin: 0; font-size: 0.9rem;">${day.day.uv}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    forecastContainer.innerHTML += card;
+  });
+}
+
+// Update hourly forecast (next 12 hours from today)
+function updateHourlyForecast(data) {
+  if (!data || !data.forecast || !data.forecast.forecastday || !data.forecast.forecastday[0]) {
+    console.error('Invalid hourly forecast data');
+    return;
+  }
+  
+  const hourlyContainer = document.getElementById('hourlyForecast');
+  hourlyContainer.innerHTML = '';
+
+  const currentHour = new Date().getHours();
+  const todayHours = data.forecast.forecastday[0].hour || [];
+  
+  // Get next 12 hours (or remaining hours if less than 12)
+  const hours = todayHours.slice(currentHour, Math.min(currentHour + 12, 24));
+
+  if (hours.length === 0) {
+    hourlyContainer.innerHTML = '<tr><td colspan="6" style="text-align: center;">No hourly data available</td></tr>';
+    return;
+  }
+
+  hours.forEach(hour => {
+    const time = new Date(hour.time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+    const iconUrl = hour.condition.icon.startsWith('//') ? `https:${hour.condition.icon}` : hour.condition.icon;
+    
+    const row = `
+      <tr>
+        <td><strong>${time}</strong></td>
+        <td>
+          <img src="${iconUrl}" alt="${hour.condition.text}" style="width: 40px; vertical-align: middle;">
+          ${hour.condition.text}
+        </td>
+        <td><strong>${Math.round(hour.temp_c)}°C</strong></td>
+        <td>${hour.chance_of_rain}%</td>
+        <td>${Math.round(hour.wind_kph)} km/h</td>
+        <td>${hour.humidity}%</td>
+      </tr>
+    `;
+    hourlyContainer.innerHTML += row;
+  });
+}
+
+// Update astronomy data
+function updateAstronomy(data) {
+  if (!data || !data.forecast || !data.forecast.forecastday || !data.forecast.forecastday[0]) {
+    console.error('Invalid astronomy data');
+    return;
+  }
+  
+  const astro = data.forecast.forecastday[0].astro;
+  
+  document.getElementById('sunrise').textContent = astro.sunrise || '--';
+  document.getElementById('sunset').textContent = astro.sunset || '--';
+  document.getElementById('sunStatus').textContent = astro.is_sun_up === 1 ? '☀️ Sun is Up' : '🌙 Sun is Down';
+  document.getElementById('moonrise').textContent = astro.moonrise || '--';
+  document.getElementById('moonset').textContent = astro.moonset || '--';
+  document.getElementById('moonPhase').textContent = astro.moon_phase || '--';
+  document.getElementById('moonIllumination').textContent = `${astro.moon_illumination || 0}%`;
+}
+
+// Update air quality data
+function updateAirQuality(data) {
+  if (!data || !data.current) {
+    console.error('Invalid current data for AQI');
+    return;
+  }
+  
+  const aqi = data.current.air_quality;
+  
+  if (aqi && aqi['us-epa-index']) {
+    const aqiInfo = getAQIDescription(aqi['us-epa-index']);
+    
+    document.getElementById('aqiLevel').textContent = aqiInfo.level;
+    document.getElementById('aqiLevel').style.color = aqiInfo.color;
+    document.getElementById('aqiDescription').textContent = aqiInfo.desc;
+    
+    document.getElementById('co').textContent = (aqi.co || 0).toFixed(1);
+    document.getElementById('o3').textContent = (aqi.o3 || 0).toFixed(1);
+    document.getElementById('no2').textContent = (aqi.no2 || 0).toFixed(1);
+    document.getElementById('so2').textContent = (aqi.so2 || 0).toFixed(1);
+    document.getElementById('pm25').textContent = (aqi.pm2_5 || 0).toFixed(1);
+    document.getElementById('pm10').textContent = (aqi.pm10 || 0).toFixed(1);
+  } else {
+    document.getElementById('aqiLevel').textContent = 'N/A';
+    document.getElementById('aqiDescription').textContent = 'Air quality data not available for this location';
+  }
+}
+
+// Update weather alerts
+function updateAlerts(data) {
+  const alertsSection = document.getElementById('alerts');
+  const alertsContainer = document.getElementById('alertsContainer');
+  
+  if (data.alerts && data.alerts.alert && data.alerts.alert.length > 0) {
+    alertsSection.style.display = 'block';
+    alertsContainer.innerHTML = '';
+    
+    data.alerts.alert.forEach(alert => {
+      const alertCard = `
+        <div class="card weather-card mb-3">
+          <div class="card-header" style="background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(255, 100, 0, 0.3));">
+            <h4><i class="fas fa-exclamation-triangle me-2"></i>${alert.event}</h4>
+          </div>
+          <div class="card-body">
+            <p style="color: #fff;"><strong>Headline:</strong> ${alert.headline}</p>
+            <p style="color: rgba(255,255,255,0.8);"><strong>Severity:</strong> ${alert.severity} | <strong>Urgency:</strong> ${alert.urgency}</p>
+            <p style="color: rgba(255,255,255,0.8);"><strong>Areas:</strong> ${alert.areas}</p>
+            <p style="color: rgba(255,255,255,0.8);"><strong>Effective:</strong> ${new Date(alert.effective).toLocaleString()}</p>
+            <p style="color: rgba(255,255,255,0.8);"><strong>Expires:</strong> ${new Date(alert.expires).toLocaleString()}</p>
+            <p style="color: rgba(255,255,255,0.9); margin-top: 1rem;">${alert.desc}</p>
+          </div>
+        </div>
+      `;
+      alertsContainer.innerHTML += alertCard;
+    });
+  } else {
+    alertsSection.style.display = 'none';
   }
 }
 
 // Listen for submit event on navbar search form
 searchForm.addEventListener('submit', (e) => {
-  e.preventDefault(); // Prevent page reload
+  e.preventDefault();
   const city = searchInput.value.trim();
   if (city) {
-    getWeather(city);
+    getWeatherData(city);
+    searchInput.value = '';
   } else {
-    document.querySelector("#name2").textContent = "⚠️ Please enter a city name.";
+    document.querySelector("#cityName").textContent = "⚠️ Enter a city name";
   }
+});
+
+// Load default city on page load
+window.addEventListener('load', () => {
+  getWeatherData('Delhi'); // Default city
+});
+
+// Add smooth scroll behavior
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  });
 });
