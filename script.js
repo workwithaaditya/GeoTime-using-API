@@ -203,7 +203,7 @@ function updateAstronomy(data) {
   
   document.getElementById('sunrise').textContent = astro.sunrise || '--';
   document.getElementById('sunset').textContent = astro.sunset || '--';
-  document.getElementById('sunStatus').textContent = astro.is_sun_up === 1 ? '☀️ Sun is Up' : '🌙 Sun is Down';
+  document.getElementById('sunStatus').textContent = astro.is_sun_up === 1 ? 'Sun is Up' : 'Sun is Down';
   document.getElementById('moonrise').textContent = astro.moonrise || '--';
   document.getElementById('moonset').textContent = astro.moonset || '--';
   document.getElementById('moonPhase').textContent = astro.moon_phase || '--';

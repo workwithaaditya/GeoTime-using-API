@@ -499,7 +499,6 @@
   <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="#">
-        <i class="fas fa-cloud-sun me-2"></i>
         <span>Sky<span style="color: #ffd700;">Watch</span></span>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -509,33 +508,33 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#current"><i class="fas fa-home me-1"></i> Current</a>
+            <a class="nav-link active" aria-current="page" href="#current">Current</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#forecast"><i class="fas fa-calendar-week me-1"></i> Forecast</a>
+            <a class="nav-link" href="#forecast">Forecast</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#astronomy"><i class="fas fa-moon me-1"></i> Astronomy</a>
+            <a class="nav-link" href="#astronomy">Astronomy</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#air-quality"><i class="fas fa-wind me-1"></i> Air Quality</a>
+            <a class="nav-link" href="#air-quality">Air Quality</a>
           </li>
         </ul>
         <!-- Navbar Search Form -->
         <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search any city..." aria-label="Search" id="searchInput" />
-          <button class="btn btn-search" type="submit"><i class="fas fa-search me-1"></i> Search</button>
+          <input class="form-control me-2" type="search" placeholder="Search city..." aria-label="Search" id="searchInput" />
+          <button class="btn btn-search" type="submit">Search</button>
         </form>
       </div>
     </div>
   </nav>
 
-  <h1 class="my-5 text-center"><i class="fas fa-cloud-sun me-3"></i>Advanced Weather Dashboard</h1>
+  <h1 class="my-5 text-center">Weather Dashboard</h1>
 
   <!-- Loading indicator -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p>Fetching weather data...</p>
+    <p>Loading...</p>
   </div>
 
   <div class="container">
@@ -606,17 +605,13 @@
 
       <!-- Weather Alerts Section -->
       <section id="alerts" class="mb-5" style="display: none;">
-        <h2 class="text-center mb-4" style="color: #fff;">
-          <i class="fas fa-exclamation-triangle me-2"></i>Weather Alerts
-        </h2>
+        <h2 class="text-center mb-4" style="color: #fff;">Weather Alerts</h2>
         <div id="alertsContainer"></div>
       </section>
 
       <!-- 3-Day Forecast Section -->
       <section id="forecast" class="mb-5">
-        <h2 class="text-center mb-4" style="color: #fff;">
-          <i class="fas fa-calendar-week me-2"></i>3-Day Forecast
-        </h2>
+        <h2 class="text-center mb-4" style="color: #fff;">3-Day Forecast</h2>
         <div class="row row-cols-1 row-cols-md-3" id="forecastContainer">
           <!-- Forecast cards will be dynamically added here -->
         </div>
@@ -624,9 +619,7 @@
 
       <!-- Hourly Forecast Section -->
       <section id="hourly" class="mb-5">
-        <h2 class="text-center mb-4" style="color: #fff;">
-          <i class="fas fa-clock me-2"></i>Hourly Forecast
-        </h2>
+        <h2 class="text-center mb-4" style="color: #fff;">Hourly Forecast</h2>
         <div class="table-container">
           <div class="table-responsive">
             <table class="table">
@@ -650,20 +643,18 @@
 
       <!-- Astronomy Section -->
       <section id="astronomy" class="mb-5">
-        <h2 class="text-center mb-4" style="color: #fff;">
-          <i class="fas fa-moon me-2"></i>Astronomy & Sun/Moon Data
-        </h2>
+        <h2 class="text-center mb-4" style="color: #fff;">Astronomy</h2>
         <div class="row row-cols-1 row-cols-md-2">
           <div class="col mb-4">
             <div class="card weather-card">
               <div class="card-header">
-                <h4><i class="fas fa-sun"></i> Sun Information</h4>
+                <h4>Sun Information</h4>
               </div>
               <div class="card-body">
                 <ul class="list-unstyled">
-                  <li><i class="fas fa-sunrise me-2"></i> Sunrise: <span id="sunrise">--</span></li>
-                  <li><i class="fas fa-sunset me-2"></i> Sunset: <span id="sunset">--</span></li>
-                  <li><i class="fas fa-sun me-2"></i> Sun Status: <span id="sunStatus">--</span></li>
+                  <li>Sunrise: <span id="sunrise">--</span></li>
+                  <li>Sunset: <span id="sunset">--</span></li>
+                  <li>Sun Status: <span id="sunStatus">--</span></li>
                 </ul>
               </div>
             </div>
@@ -671,14 +662,14 @@
           <div class="col mb-4">
             <div class="card weather-card">
               <div class="card-header">
-                <h4><i class="fas fa-moon"></i> Moon Information</h4>
+                <h4>Moon Information</h4>
               </div>
               <div class="card-body">
                 <ul class="list-unstyled">
-                  <li><i class="fas fa-arrow-up me-2"></i> Moonrise: <span id="moonrise">--</span></li>
-                  <li><i class="fas fa-arrow-down me-2"></i> Moonset: <span id="moonset">--</span></li>
-                  <li><i class="fas fa-moon me-2"></i> Phase: <span id="moonPhase">--</span></li>
-                  <li><i class="fas fa-certificate me-2"></i> Illumination: <span id="moonIllumination">--</span></li>
+                  <li>Moonrise: <span id="moonrise">--</span></li>
+                  <li>Moonset: <span id="moonset">--</span></li>
+                  <li>Phase: <span id="moonPhase">--</span></li>
+                  <li>Illumination: <span id="moonIllumination">--</span></li>
                 </ul>
               </div>
             </div>
@@ -688,9 +679,7 @@
 
       <!-- Air Quality Section -->
       <section id="air-quality" class="mb-5">
-        <h2 class="text-center mb-4" style="color: #fff;">
-          <i class="fas fa-wind me-2"></i>Air Quality Index
-        </h2>
+        <h2 class="text-center mb-4" style="color: #fff;">Air Quality Index</h2>
         <div class="card weather-card">
           <div class="card-body">
             <div class="row text-center">
@@ -749,6 +738,23 @@
 
     </main>
   </div>
+
+  <!-- Footer -->
+  <footer style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); padding: 2rem 0; margin-top: 3rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 text-center">
+          <p style="color: rgba(255, 255, 255, 0.7); margin: 0; font-size: 0.95rem;">
+            Developed by <a href="https://github.com/workwithaaditya" target="_blank" rel="noopener noreferrer" style="color: #ffd700; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Aaditya</a>
+          </p>
+          <p style="color: rgba(255, 255, 255, 0.5); margin: 0.5rem 0 0 0; font-size: 0.85rem;">
+            Weather data powered by <a href="https://www.weatherapi.com/" target="_blank" rel="noopener noreferrer" style="color: rgba(255, 255, 255, 0.6); text-decoration: none;">WeatherAPI.com</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
