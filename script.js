@@ -493,9 +493,9 @@ function setupInteractiveCards() {
         card.style.setProperty('--px', px + '%');
         card.style.setProperty('--py', py + '%');
 
-        const rotateX = ((py - 50) / 50) * -6; // tilt up/down
-        const rotateY = ((px - 50) / 50) * 6;  // tilt left/right
-        card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.02)`;
+  const rotateX = ((py - 50) / 50) * -3; // tilt up/down (reduced)
+  const rotateY = ((px - 50) / 50) * 3;  // tilt left/right (reduced)
+  card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px) scale(1.01)`;
         card.classList.add('is-hover');
       });
     }
