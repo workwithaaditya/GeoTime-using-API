@@ -7,6 +7,37 @@ const loadingElement = document.getElementById('loading');
 const API_KEY = '8bee34e197msh6f107bb89434ed3p109bb6jsn654f791faa2f';
 const API_HOST = 'weatherapi-com.p.rapidapi.com';
 
+// Function to get user's current location using Geolocation API
+function getUserLocation() {
+  return new Promise((resolve, reject) => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log(`📍 Current Location: Lat ${latitude}, Lng ${longitude}`);
+          
+          // Fetch weather for coordinates (works as city parameter)
+          resolve(`${latitude},${longitude}`);
+        },
+        (error) => {
+          console.warn('⚠️ Geolocation error:', error.message);
+          // Fallback to default city if geolocation fails
+          console.log('📍 Using default location: Delhi');
+          resolve('Delhi');
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 5000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      console.warn('❌ Geolocation not supported, using default location');
+      resolve('Delhi');
+    }
+  });
+}
+
 // Function to show/hide loading indicator
 function showLoading(show) {
   if (show) {
@@ -493,9 +524,12 @@ updateAirQuality = function(data) {
   }, 100);
 };
 
-// Load default city on page load
-window.addEventListener('load', () => {
-  getWeatherData('Delhi'); // Default city
+// Load weather for user's current location on page load
+window.addEventListener('load', async () => {
+  console.log('🌍 Fetching user location...');
+  const location = await getUserLocation();
+  console.log(`📍 Fetching weather for: ${location}`);
+  getWeatherData(location);
 });
 
 // Add smooth scroll behavior with enhanced animation
