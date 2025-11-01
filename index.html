@@ -406,6 +406,17 @@
     .table {
       color: #fff;
       margin: 0;
+      /* Force Bootstrap table to be transparent */
+      --bs-table-bg: transparent;
+      --bs-table-striped-bg: transparent;
+      --bs-table-hover-bg: rgba(255, 255, 255, 0.08);
+      --bs-table-border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Override Bootstrap cell background so row glass shows through */
+    .table > :not(caption) > * > * {
+      background-color: transparent !important;
+      box-shadow: none !important;
     }
 
     .table thead th {
@@ -423,16 +434,18 @@
     .table tbody tr {
       transition: all 0.3s ease;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      background: transparent;
+      background: rgba(102, 126, 234, 0.08);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
     }
 
     .table tbody tr:hover {
-      background: rgba(102, 126, 234, 0.2);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
+      background: rgba(102, 126, 234, 0.15);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       transform: scale(1.02);
       box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     .table tbody td, .table tbody th {
@@ -441,6 +454,7 @@
       vertical-align: middle;
       font-weight: 500;
       text-align: center;
+      background-color: transparent !important;
     }
 
     .table tbody th {
