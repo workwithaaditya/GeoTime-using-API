@@ -419,50 +419,176 @@
       }
     }
 
+    /* ============ ENHANCED ANIMATIONS ============ */
+
     /* Animation delays for staggered effect */
     .col:nth-child(1) .weather-card {
-      animation: slideInLeft 0.8s ease;
+      animation: slideInLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .col:nth-child(2) .weather-card {
-      animation: slideInUp 0.8s ease 0.2s both;
+      animation: slideInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
     }
 
     .col:nth-child(3) .weather-card {
-      animation: slideInRight 0.8s ease 0.4s both;
+      animation: slideInRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
     }
 
     @keyframes slideInLeft {
       from {
         opacity: 0;
-        transform: translateX(-50px);
+        transform: translateX(-50px) rotateY(10deg);
       }
       to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(0) rotateY(0deg);
       }
     }
 
     @keyframes slideInUp {
       from {
         opacity: 0;
-        transform: translateY(50px);
+        transform: translateY(50px) scale(0.9);
       }
       to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
       }
     }
 
     @keyframes slideInRight {
       from {
         opacity: 0;
-        transform: translateX(50px);
+        transform: translateX(50px) rotateY(-10deg);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) rotateY(0deg);
+      }
+    }
+
+    /* Icon animations */
+    .card-header h4 i {
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+
+    .weather-card:hover .card-header h4 i {
+      animation: iconBounce 0.6s ease;
+    }
+
+    @keyframes iconBounce {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.2) rotate(10deg); }
+      75% { transform: scale(1.1) rotate(-5deg); }
+    }
+
+    /* List item staggered animations */
+    .list-unstyled li {
+      animation: fadeInSlide 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    .list-unstyled li:nth-child(1) { animation-delay: 0.2s; }
+    .list-unstyled li:nth-child(2) { animation-delay: 0.3s; }
+    .list-unstyled li:nth-child(3) { animation-delay: 0.4s; }
+    .list-unstyled li:nth-child(4) { animation-delay: 0.5s; }
+    .list-unstyled li:nth-child(5) { animation-delay: 0.6s; }
+    .list-unstyled li:nth-child(6) { animation-delay: 0.7s; }
+    .list-unstyled li:nth-child(7) { animation-delay: 0.8s; }
+    .list-unstyled li:nth-child(8) { animation-delay: 0.9s; }
+
+    @keyframes fadeInSlide {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
       }
       to {
         opacity: 1;
         transform: translateX(0);
       }
+    }
+
+    /* Pulsing effect for active elements */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .list-unstyled li span {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Table row entrance animations */
+    .table tbody tr {
+      animation: fadeInUp 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    .table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    .table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    .table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    .table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+    .table tbody tr:nth-child(6) { animation-delay: 0.6s; }
+
+    /* Ripple effect on click */
+    .btn-search::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .btn-search:active::after {
+      animation: ripple 0.6s ease-out;
+    }
+
+    @keyframes ripple {
+      to {
+        width: 500px;
+        height: 500px;
+        opacity: 0;
+      }
+    }
+
+    /* Glow effect on focus */
+    .form-control:focus {
+      animation: glowPulse 0.6s ease-out;
+    }
+
+    @keyframes glowPulse {
+      0% {
+        box-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      }
+      100% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+      }
+    }
+
+    /* Weather card shimmer on load */
+    @keyframes cardShimmer {
+      0% {
+        background-position: -1000px 0;
+      }
+      100% {
+        background-position: 1000px 0;
+      }
+    }
+
+    .weather-card.loading {
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+      background-size: 1000px 100%;
+      animation: cardShimmer 2s infinite;
     }
 
     /* Dropdown menu styling */
@@ -486,6 +612,7 @@
       background: rgba(255, 215, 0, 0.3);
       transform: translateX(5px);
     }
+  </style>
   </style>
 </head>
 

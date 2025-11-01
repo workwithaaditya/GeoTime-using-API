@@ -282,12 +282,187 @@ searchForm.addEventListener('submit', (e) => {
   }
 });
 
+// ============ ANIMATION HELPERS ============
+
+/**
+ * Add fade-in animation to elements
+ */
+function animateElementIn(element, delay = 0) {
+  if (!element) return;
+  element.style.animation = `fadeInUp 0.6s ease forwards`;
+  element.style.animationDelay = `${delay}ms`;
+}
+
+/**
+ * Add staggered animations to list items
+ */
+function staggerAnimateListItems(container) {
+  if (!container) return;
+  const items = container.querySelectorAll('li');
+  items.forEach((item, index) => {
+    item.style.animation = `fadeInSlide 0.5s ease forwards`;
+    item.style.animationDelay = `${(index + 1) * 100}ms`;
+  });
+}
+
+/**
+ * Add loading shimmer effect
+ */
+function addLoadingEffect(element) {
+  if (!element) return;
+  element.classList.add('loading');
+}
+
+/**
+ * Remove loading shimmer effect
+ */
+function removeLoadingEffect(element) {
+  if (!element) return;
+  element.classList.remove('loading');
+}
+
+/**
+ * Animate value changes with smooth transition
+ */
+function animateValueChange(element, newValue, duration = 1000) {
+  if (!element) return;
+  
+  const oldValue = parseFloat(element.textContent);
+  const difference = newValue - oldValue;
+  const steps = 60;
+  const stepDuration = duration / steps;
+  let currentStep = 0;
+
+  const interval = setInterval(() => {
+    currentStep++;
+    const progress = currentStep / steps;
+    const currentValue = oldValue + difference * progress;
+    
+    if (element.textContent.includes('°')) {
+      element.textContent = `${Math.round(currentValue)}°C`;
+    } else {
+      element.textContent = currentValue.toFixed(1);
+    }
+
+    if (currentStep >= steps) {
+      clearInterval(interval);
+      element.textContent = newValue;
+    }
+  }, stepDuration);
+}
+
+/**
+ * Pulse animation for important values
+ */
+function addPulseEffect(element) {
+  if (!element) return;
+  element.style.animation = 'pulse 2s ease-in-out infinite';
+}
+
+/**
+ * Trigger card entrance animations
+ */
+function triggerCardAnimations() {
+  const cards = document.querySelectorAll('.weather-card');
+  cards.forEach((card, index) => {
+    removeLoadingEffect(card);
+    // Reset animation by removing and re-adding
+    card.style.animation = 'none';
+    setTimeout(() => {
+      if (index === 0) {
+        card.style.animation = 'slideInLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      } else if (index === 1) {
+        card.style.animation = 'slideInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both';
+      } else {
+        card.style.animation = 'slideInRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both';
+      }
+    }, 10);
+  });
+}
+
+// ============ ENHANCED WEATHER UPDATES ============
+
+/**
+ * Enhanced version of updateCurrentWeather with animations
+ */
+const originalUpdateCurrentWeather = updateCurrentWeather;
+updateCurrentWeather = function(data) {
+  originalUpdateCurrentWeather.call(this, data);
+  
+  // Add animations to important elements
+  const tempElement = document.getElementById('temperature');
+  if (tempElement) addPulseEffect(tempElement);
+  
+  // Animate weather icon
+  const icon = document.getElementById('weatherIcon');
+  if (icon) {
+    icon.style.animation = 'slideInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+  }
+};
+
+/**
+ * Enhanced version of updateForecast with animations
+ */
+const originalUpdateForecast = updateForecast;
+updateForecast = function(data) {
+  originalUpdateForecast.call(this, data);
+  triggerCardAnimations();
+};
+
+/**
+ * Enhanced version of updateHourlyForecast with animations
+ */
+const originalUpdateHourlyForecast = updateHourlyForecast;
+updateHourlyForecast = function(data) {
+  originalUpdateHourlyForecast.call(this, data);
+  
+  // Stagger table rows
+  setTimeout(() => {
+    const rows = document.querySelectorAll('.table tbody tr');
+    rows.forEach((row, index) => {
+      row.style.animation = 'none';
+      setTimeout(() => {
+        row.style.animation = `fadeInUp 0.5s ease forwards`;
+        row.style.animationDelay = `${index * 50}ms`;
+      }, 10);
+    });
+  }, 100);
+};
+
+/**
+ * Enhanced version of updateAstronomy with animations
+ */
+const originalUpdateAstronomy = updateAstronomy;
+updateAstronomy = function(data) {
+  originalUpdateAstronomy.call(this, data);
+  
+  // Stagger list items
+  setTimeout(() => {
+    const container = document.querySelector('#astronomy .card-body');
+    if (container) staggerAnimateListItems(container);
+  }, 100);
+};
+
+/**
+ * Enhanced version of updateAirQuality with animations
+ */
+const originalUpdateAirQuality = updateAirQuality;
+updateAirQuality = function(data) {
+  originalUpdateAirQuality.call(this, data);
+  
+  // Stagger pollutant list items
+  setTimeout(() => {
+    const container = document.querySelector('#air-quality .card-body');
+    if (container) staggerAnimateListItems(container);
+  }, 100);
+};
+
 // Load default city on page load
 window.addEventListener('load', () => {
   getWeatherData('Delhi'); // Default city
 });
 
-// Add smooth scroll behavior
+// Add smooth scroll behavior with enhanced animation
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
     e.preventDefault();
@@ -297,6 +472,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         behavior: 'smooth',
         block: 'start'
       });
+      
+      // Add subtle highlight animation
+      target.style.animation = 'pulse 1s ease-in-out';
     }
   });
 });
