@@ -445,6 +445,61 @@ function triggerCardAnimations() {
       }
     }, 10);
   });
+
+  // Add interactive parallax + sheen after cards are in DOM
+  setupInteractiveCards();
+}
+
+/**
+ * Add a premium parallax tilt + sheen effect that follows the cursor.
+ * Removes the old rotating-glass look and replaces with subtle 3D interactivity.
+ */
+function setupInteractiveCards() {
+  const cards = document.querySelectorAll('.weather-card');
+  cards.forEach(card => {
+    let rafId = null;
+
+    function onMove(e) {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const px = (x / rect.width) * 100;
+      const py = (y / rect.height) * 100;
+
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        card.style.setProperty('--px', px + '%');
+        card.style.setProperty('--py', py + '%');
+
+        const rotateX = ((py - 50) / 50) * -6; // tilt up/down
+        const rotateY = ((px - 50) / 50) * 6;  // tilt left/right
+        card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.02)`;
+        card.classList.add('is-hover');
+      });
+    }
+
+    function onEnter() {
+      // retrigger sheen sweep by toggling class (handled in CSS)
+      card.classList.remove('is-hover');
+      void card.offsetWidth; // force reflow
+      card.classList.add('is-hover');
+    }
+
+    function onLeave() {
+      if (rafId) cancelAnimationFrame(rafId);
+      card.style.transform = '';
+      card.classList.remove('is-hover');
+    }
+
+    // Clean prior listeners if any (idempotent handling)
+    card.removeEventListener('mousemove', onMove);
+    card.removeEventListener('mouseenter', onEnter);
+    card.removeEventListener('mouseleave', onLeave);
+
+    card.addEventListener('mousemove', onMove);
+    card.addEventListener('mouseenter', onEnter);
+    card.addEventListener('mouseleave', onLeave);
+  });
 }
 
 // ============ ENHANCED WEATHER UPDATES ============
