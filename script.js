@@ -17,11 +17,21 @@ function getUserLocation() {
           console.log(`📍 Current Location: Lat ${latitude}, Lng ${longitude}`);
           
           // Fetch weather for coordinates (works as city parameter)
-          resolve(`${latitude},${longitude}`);
+          const loc = `${latitude},${longitude}`;
+          try { localStorage.setItem('lastLocation', loc); } catch {}
+          resolve(loc);
         },
         (error) => {
           console.warn('⚠️ Geolocation error:', error.message);
-          // Fallback to default city if geolocation fails
+          // Prefer last known location if available
+          try {
+            const cached = localStorage.getItem('lastLocation');
+            if (cached) {
+              console.log('📍 Using last known location from cache:', cached);
+              resolve(cached);
+              return;
+            }
+          } catch {}
           console.log('📍 Using default location: Delhi');
           resolve('Delhi');
         },
@@ -33,6 +43,10 @@ function getUserLocation() {
       );
     } else {
       console.warn('❌ Geolocation not supported, using default location');
+      try {
+        const cached = localStorage.getItem('lastLocation');
+        if (cached) return resolve(cached);
+      } catch {}
       resolve('Delhi');
     }
   });
@@ -136,6 +150,14 @@ function updateCurrentWeather(data) {
   }
   
   const { location, current } = data;
+
+  // Cache last successful location (lat,lon) for future default loads
+  try {
+    if (typeof location.lat === 'number' && typeof location.lon === 'number') {
+      localStorage.setItem('lastLocation', `${location.lat},${location.lon}`);
+      localStorage.setItem('lastCityName', location.name || '');
+    }
+  } catch {}
   
   document.getElementById('cityName').textContent = location.name || 'Unknown';
   document.getElementById('region').textContent = location.region || '--';
@@ -586,6 +608,23 @@ window.addEventListener('load', async () => {
   console.log(`📍 Fetching weather for: ${location}`);
   getWeatherData(location);
 });
+
+// Current Location button handler
+const currentBtn = document.getElementById('btnCurrentLocation');
+if (currentBtn) {
+  currentBtn.addEventListener('click', async () => {
+    currentBtn.disabled = true;
+    const prevText = currentBtn.innerHTML;
+    currentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    try {
+      const loc = await getUserLocation();
+      getWeatherData(loc);
+    } finally {
+      currentBtn.disabled = false;
+      currentBtn.innerHTML = prevText;
+    }
+  });
+}
 
 // Add smooth scroll behavior with enhanced animation
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
