@@ -29,6 +29,35 @@ function getAQIDescription(index) {
   return descriptions[index] || { level: 'Unknown', desc: 'No data available', color: '#999' };
 }
 
+/**
+ * Map weather condition text to shader effect type
+ * Used by shader-effects.js to select appropriate WebGL effect
+ * @param {string} condition - Weather condition text from API
+ * @returns {string} Shader effect type
+ */
+function mapWeatherCondition(condition) {
+  const cond = condition.toLowerCase();
+  
+  // Thunderstorm & Lightning
+  if (cond.includes('thunder') || cond.includes('lightning')) return 'thunderstorm';
+  
+  // Rain & Drizzle
+  if (cond.includes('rain') || cond.includes('drizzle') || cond.includes('shower')) return 'rain';
+  
+  // Snow & Sleet
+  if (cond.includes('snow') || cond.includes('sleet') || cond.includes('blizzard')) return 'snow';
+  
+  // Mist & Fog
+  if (cond.includes('mist') || cond.includes('fog') || cond.includes('haze')) return 'mist';
+  
+  // Clouds
+  if (cond.includes('cloud') || cond.includes('overcast')) return 'clouds';
+  
+  // Clear (default)
+  return 'clear';
+}
+
+
 // Function to fetch comprehensive weather data
 async function getWeatherData(city) {
   const url = `https://weatherapi-com.p.rapidapi.com/forecast.json?q=${encodeURIComponent(city)}&days=3&aqi=yes&alerts=yes`;
@@ -87,6 +116,13 @@ function updateCurrentWeather(data) {
   weatherIcon.src = current.condition.icon.startsWith('//') ? `https:${current.condition.icon}` : current.condition.icon;
   weatherIcon.alt = current.condition.text;
   weatherIcon.style.display = 'block';
+  
+  // 🎨 Initialize shader effect based on weather condition
+  if (window.WeatherShader) {
+    const weatherType = mapWeatherCondition(current.condition.text);
+    const isDay = current.is_day === 1;
+    window.WeatherShader.initialize(weatherType, isDay);
+  }
   
   document.getElementById('feelsLike').textContent = `${Math.round(current.feelslike_c)}°C`;
   document.getElementById('windSpeed').textContent = `${current.wind_kph} km/h ${current.wind_dir}`;
