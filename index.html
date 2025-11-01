@@ -9,6 +9,11 @@
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Favicon: place your 512x512 PNG as /favicon.png next to this file -->
+  <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
+  <link rel="shortcut icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <meta name="theme-color" content="#667eea">
   <!-- Three.js for WebGL -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <!-- Vanta.js for shader effects -->
@@ -99,6 +104,25 @@
       background: rgba(255, 255, 255, 0.15) !important;
     }
 
+    /* Subtle gradient hairline under navbar */
+    .navbar::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 20%, rgba(255,255,255,0.35) 80%, rgba(255,255,255,0) 100%);
+      pointer-events: none;
+    }
+
+    /* Compact state on scroll */
+    .navbar.scrolled {
+      background: rgba(255, 255, 255, 0.18) !important;
+      border-color: rgba(255, 255, 255, 0.28);
+      box-shadow: 0 12px 36px rgba(31, 38, 135, 0.42);
+    }
+
     /* Current location button */
     .btn-current {
       margin-left: 0.5rem;
@@ -164,6 +188,16 @@
       transform: translateY(-2px);
     }
 
+    .nav-link.active,
+    .nav-link[aria-current="page"] {
+      color: #ffd700 !important;
+    }
+
+    .nav-link.active::before,
+    .nav-link[aria-current="page"]::before {
+      width: 80%;
+    }
+
     .form-control {
       background: rgba(255, 255, 255, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.3);
@@ -193,12 +227,46 @@
       padding: 0.6rem 1.5rem;
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      position: relative;
     }
 
     .btn-search:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
       background: linear-gradient(135deg, #764ba2, #667eea);
+    }
+
+    /* Glass input group to unify input + button */
+    .glass-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.4rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+    }
+
+    .glass-input-group:focus-within {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 215, 0, 0.55);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
+    }
+
+    .glass-input-group .form-control {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding-left: 1rem;
+      min-width: 240px;
+    }
+
+    .glass-input-group .btn-search {
+      border-radius: 999px;
+      padding: 0.55rem 1.2rem;
     }
 
     /* Page title - premium minimalist gradient text */
@@ -423,6 +491,26 @@
     .btn-card:hover {
       transform: translateY(-3px);
       box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    /* Current location button - compact icon glass */
+    .btn-current {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      box-shadow: 0 6px 18px rgba(31, 38, 135, 0.35);
+    }
+
+    .btn-current:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.22);
+      box-shadow: 0 10px 26px rgba(31, 38, 135, 0.45);
     }
 
     /* Table styling */
@@ -888,8 +976,10 @@
         </ul>
         <!-- Navbar Search Form -->
         <form class="d-flex align-items-center gap-2" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search city..." aria-label="Search" id="searchInput" />
-          <button class="btn btn-search" type="submit">Search</button>
+          <div class="glass-input-group me-1">
+            <input class="form-control" type="search" placeholder="Search city..." aria-label="Search" id="searchInput" />
+            <button class="btn btn-search" type="submit">Search</button>
+          </div>
           <button class="btn btn-current" type="button" id="btnCurrentLocation" title="Use current location">
             <i class="fas fa-location-arrow"></i>
           </button>

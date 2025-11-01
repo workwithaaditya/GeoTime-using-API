@@ -32,8 +32,8 @@ function getUserLocation() {
               return;
             }
           } catch {}
-          console.log('📍 Using default location: Delhi');
-          resolve('Delhi');
+          console.log('📍 Using default location: Bangalore, India');
+          resolve('Bangalore, India');
         },
         {
           enableHighAccuracy: false,
@@ -47,7 +47,7 @@ function getUserLocation() {
         const cached = localStorage.getItem('lastLocation');
         if (cached) return resolve(cached);
       } catch {}
-      resolve('Delhi');
+      resolve('Bangalore, India');
     }
   });
 }
@@ -642,3 +642,55 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     }
   });
 });
+
+// ============ NAVBAR POLISH: Active link + scroll state ============
+
+// Toggle compact state on scroll for premium feel
+(function() {
+  const navbar = document.querySelector('.navbar');
+  if (!navbar) return;
+  const setScrolled = () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 8);
+  };
+  setScrolled();
+  window.addEventListener('scroll', setScrolled, { passive: true });
+})();
+
+// Section-aware active highlight for nav links
+(function() {
+  const links = Array.from(document.querySelectorAll('.navbar .nav-link'));
+  if (!links.length) return;
+  const linkByHash = new Map(links.map(l => [l.getAttribute('href'), l]));
+  const sectionIds = ['#current', '#forecast', '#astronomy', '#air-quality'];
+  const sections = sectionIds
+    .map(id => document.querySelector(id))
+    .filter(Boolean);
+
+  function setActive(hash) {
+    links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === hash));
+  }
+
+  // Clicks also set active immediately
+  links.forEach(l => {
+    l.addEventListener('click', () => setActive(l.getAttribute('href')));
+  });
+
+  // Observe visibility and update active link
+  if ('IntersectionObserver' in window && sections.length) {
+    const observer = new IntersectionObserver((entries) => {
+      let best = null;
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
+        }
+      }
+      if (best) {
+        const id = '#' + best.target.id;
+        const link = linkByHash.get(id);
+        if (link) setActive(id);
+      }
+    }, { threshold: [0.55, 0.75] });
+
+    sections.forEach(sec => observer.observe(sec));
+  }
+})();
